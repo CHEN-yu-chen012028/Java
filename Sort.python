@@ -1,0 +1,175 @@
+#Quick Sort
+import time
+
+def quick_sort_verbose(arr, depth=0):
+    if len(arr) <= 1:
+        return arr
+
+    pivot = arr[0]  # 選第一個元素為 pivot
+    left = []
+    right = []
+
+    for x in arr[1:]:
+        if x <= pivot:
+            left.append(x)
+        else:
+            right.append(x)
+    
+    print(f"{'  '*depth}Pivot={pivot}, 左={left}, 右={right}")
+    
+    sorted_left = quick_sort_verbose(left, depth+1)
+    sorted_right = quick_sort_verbose(right, depth+1)
+
+    result = sorted_left + [pivot] + sorted_right
+    print(f"{'  '*depth}合併: {sorted_left} + [{pivot}] + {sorted_right} → {result}")
+    return result
+
+# 測試資料
+data = [8, 3, 1, 7, 0, 10, 2]
+print("原始資料:", data)
+
+# 計算執行時間
+start_time = time.time()
+sorted_data = quick_sort_verbose(data)
+end_time = time.time()
+
+print("\n排序結果:", sorted_data)
+
+# 顯示時間複雜度
+print("\n時間複雜度:")
+print("Best Case: O(n log n)")
+print("Average Case: O(n log n)")
+print("Worst Case: O(n^2)")
+
+# 顯示實際耗時
+print(f"\n實際執行時間: {end_time - start_time:.6f} 秒")
+
+#Merge Sort
+import time
+
+def merge_sort_verbose(arr, depth=0):
+    if len(arr) <= 1:
+        return arr
+
+    mid = len(arr) // 2
+    left = merge_sort_verbose(arr[:mid], depth+1)
+    right = merge_sort_verbose(arr[mid:], depth+1)
+    
+    merged = merge_verbose(left, right, depth)
+    return merged
+
+def merge_verbose(left, right, depth):
+    result = []
+    i = j = 0
+    
+    while i < len(left) and j < len(right):
+        if left[i] < right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+    
+    result.extend(left[i:])
+    result.extend(right[j:])
+    
+    print(f"{'  '*depth}合併 {left} 和 {right} → {result}")
+    return result
+
+# 測試資料
+data = [8, 3, 1, 7, 0, 10, 2]
+print("原始資料:", data)
+
+# 計算執行時間
+start_time = time.time()
+sorted_data = merge_sort_verbose(data)
+end_time = time.time()
+
+print("\n排序結果:", sorted_data)
+
+# 顯示時間複雜度
+print("\n時間複雜度:")
+print("Best Case: O(n log n)")
+print("Average Case: O(n log n)")
+print("Worst Case: O(n log n)")
+
+# 顯示實際耗時
+print(f"\n實際執行時間: {end_time - start_time:.6f} 秒")
+
+#Bubble Sort
+import time
+
+def bubble_sort_verbose(arr):
+    n = len(arr)
+    for i in range(n):
+        swapped = False
+        print(f"\n第{i+1}輪排序:")
+        for j in range(0, n-i-1):
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+                swapped = True
+                print(f"交換 {arr[j+1]} 和 {arr[j]} → {arr}")
+        if not swapped:
+            print("沒有交換，陣列已排序完成")
+            break
+    return arr
+
+# 測試資料
+data = [8, 3, 1, 7, 0, 10, 2]
+print("原始資料:", data)
+
+# 計算執行時間
+start_time = time.time()
+sorted_data = bubble_sort_verbose(data.copy())
+end_time = time.time()
+
+print("\n排序結果:", sorted_data)
+
+# 顯示時間複雜度
+print("\n時間複雜度:")
+print("Best Case: O(n)")
+print("Average Case: O(n^2)")
+print("Worst Case: O(n^2)")
+
+# 顯示實際耗時
+print(f"\n實際執行時間: {end_time - start_time:.6f} 秒")
+
+
+#Insertion Sort
+import time
+
+def insertion_sort_verbose(arr):
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        print(f"\n插入元素 {key}:")
+        
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        
+        arr[j + 1] = key
+        print(arr)  # 顯示每次插入後的陣列狀態
+    
+    return arr
+
+# 測試資料
+data = [8, 3, 1, 7, 0, 10, 2]
+print("原始資料:", data)
+
+# 計算執行時間
+start_time = time.time()
+sorted_data = insertion_sort_verbose(data.copy())
+end_time = time.time()
+
+print("\n排序結果:", sorted_data)
+
+# 顯示時間複雜度
+print("\n時間複雜度:")
+print("Best Case: O(n)")
+print("Average Case: O(n^2)")
+print("Worst Case: O(n^2)")
+
+# 顯示實際耗時
+print(f"\n實際執行時間: {end_time - start_time:.6f} 秒")
