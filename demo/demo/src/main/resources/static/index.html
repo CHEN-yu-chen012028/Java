@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>微型資安防護監控系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; color: #ffffff; font-family: monospace; height: 100vh; padding: 20px; }
+        .cyber-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 25px; height: 85vh; }
+        .log-box { background: #020617; border: 1px solid #1e293b; height: 40vh; overflow-y: auto; padding: 10px; color: #38bdf8; font-size: 13px; }
+        .text-cyber { color: #38bdf8; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <h2 class="text-center mb-4 text-cyber font-weight-bold">🛡️ 網頁防暴力破解與資安監控系統</h2>
+    <div class="row g-4">
+        
+        <div class="col-md-4">
+            <div class="cyber-card">
+                <h4 class="text-cyber mb-4">🔑 使用者登入端</h4>
+                <div id="msgBox" class="alert d-none text-center small py-2"></div>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label class="form-label text-muted">帳號</label>
+                        <input type="text" id="username" class="form-control bg-dark text-white border-secondary" placeholder="admin">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted">密碼</label>
+                        <input type="password" id="password" class="form-control bg-dark text-white border-secondary" placeholder="隨便輸錯3次">
+                    </div>
+                    <button type="submit" id="loginBtn" class="btn btn-info w-100 mt-3 fw-bold text-white">安全登入</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="cyber-card">
+                <h4 class="text-danger mb-4">🚨 藍隊資安監控儀表板 (SIEM 雛形)</h4>
+                
+                <h6 class="text-warning">🚫 目前封鎖中的惡意 IP 列表：</h6>
+                <ul id="blacklist" class="list-group mb-4 text-dark">
+                    <li class="list-group-item list-group-item-secondary">暫無被封鎖的 IP</li>
+                </ul>
+
+                <h6 class="text-cyber">📜 即時防禦安全性日誌 (System Logs)：</h6>
+                <div id="logBox" class="log-box"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // 監聽登入表單
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: document.getElementById('username').value, password: document.getElementById('password').value })
+        });
+        const text = await res.text();
+        const msgBox = document.getElementById('msgBox');
+        msgBox.className = "alert text-center small py-2 " + (res.status === 200 ? "alert-success" : (res.status === 401 ? "alert-warning" : "alert-danger"));
+        msgBox.innerText = text;
+        msgBox.classList.remove('d-none');
+        updateDashboard();
+    });
+
+    // 定時排程：每 1 秒自動更新右邊的資安儀表板
+    async function updateDashboard() {
+        const res = await fetch('/api/security/status');
+        const data = await res.json();
+        
+        // 更新黑名單列表
+        const blacklist = document.getElementById('blacklist');
+        blacklist.innerHTML = '';
+        if (Object.keys(data.blockedIps).length === 0) {
+            blacklist.innerHTML = '<li class="list-group-item list-group-item-secondary small">🛡️ 系統安全，目前無遭封鎖之 IP</li>';
+        } else {
+            for (const [ip, seconds] of Object.entries(data.blockedIps)) {
+                blacklist.innerHTML += `<li class="list-group-item list-group-item-danger d-flex justify-content-between align-items-center">
+                    💥 偵測到惡意暴力破解行為，已封鎖海外攻擊來源：<strong>${ip}</strong>
+                    <span class="badge bg-dark text-danger">剩餘鎖定時間: ${seconds} 秒</span>
+                </li>`;
+            }
+        }
+
+        // 更新日誌
+        const logBox = document.getElementById('logBox');
+        logBox.innerHTML = data.logs.map(log => `<div>${log}</div>`).join(' ');
+        logBox.scrollTop = logBox.scrollHeight; // 自動捲動到最下方
+    }
+
+    setInterval(updateDashboard, 1000); // 每秒刷新
+</script>
+</body>
+</html>
